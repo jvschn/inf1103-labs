@@ -14,11 +14,13 @@ while True:
             print("Invalid input. Please enter a non-negative number.")
         else:
             inventory += int(uinput)
-            entries += 1
-            print("Current inventory:", inventory)
             if inventory > 500:
+                inventory = 500
+                print("Current inventory:", inventory)
                 print("Warning: Inventory level is high!")
                 break
+            entries += 1
+            print("Current inventory:", inventory)
     else:
         error += 1
         print("Invalid input. Please enter a number or 'quit' to exit.")
