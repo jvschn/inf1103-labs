@@ -32,6 +32,7 @@ def generate_report(total_units,total_delivered,amount_processed, failed_attempt
     print("Total Money Processed:", amount_processed)
     print("Rejected Entries:", failed_attempts)
 
+
 while True:
     uinput = get_valid_input(input("Enter the number of items in inventory: "))
     if uinput == 'error':
@@ -40,12 +41,21 @@ while True:
         generate_report(inventory,deliveries,totalAmount,error)
         break
     else:
+        if inventory + uinput > 500:
+            uinput = 500-inventory
+            print("Warning: Inventory only has a max of 500 units, maximum unit processed:",uinput,'\n')
+        newcost = uinput*cost
+        newtax = calculate_tax(newcost)
+        totalcostWithTax = newcost + newtax
+        totalAmount = process_delivery(totalAmount,totalcostWithTax)
+        print("------------New Delivery------------\n")
+        print("Number of units:",uinput)
+        print("Unit cost before tax:",newcost)
+        print("Delivery Tax(10%):",newtax)
+        print("Total:",totalcostWithTax,'\n')
         inventory += int(uinput)
-        if inventory > 500:
-            inventory = 500
-            print("Current inventory:", inventory)
-            print("Warning: Inventory level is high!")
-            break
         deliveries += 1
         print("Current inventory:", inventory)
+        if inventory == 500:
+            break
 
