@@ -5,15 +5,20 @@ tax = 0.1
 error = 0
 
 def load_inventory():
-    with open('inventory.txt', mode='r', encoding='utf-8') as file:
-        read_data = list(csv.DictReader(file))
-    if len(read_data) == 0:
+    try:
+        with open('inventory.txt', mode='r', encoding='utf-8') as file:
+            read_data = list(csv.DictReader(file))
+        if len(read_data) == 0:
+            return{'Total':0}
+        else:
+            data = {}
+            for i in read_data[0]:
+                data[i] = ast.literal_eval(read_data[0][i])
+            return data
+    except:
+        with open("inventory.txt", mode="w", newline="") as file:
+            pass
         return{'Total':0}
-    else:
-        data = {}
-        for i in read_data[0]:
-            data[i] = ast.literal_eval(read_data[0][i])
-        return data
 
 def save_inventory(inventory):
     with open("inventory.txt", mode="w", newline="") as file:
