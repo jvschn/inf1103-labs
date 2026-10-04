@@ -35,13 +35,19 @@ def load_inventory():
 
 
 def get_valid_input(user_input,sequence):
-    if user_input == "quit":
+    if user_input == "back":
         return user_input
-    elif user_input == "cancel":
+    elif sequence == "menu":
+        try:
+            if int(user_input)<1 or int(user_input)>6:
+                print("\nPlease only input numbers 1-6.\n")
+            else:
+                return int(user_input)
+        except:
+            print("\nPlease only input numbers 1-6.\n")
+    elif sequence == "str":
         return user_input
-    elif sequence == 1:
-        return user_input
-    elif sequence == 2:
+    elif sequence == "int":
         try:
             if int(user_input) <= 0:
                 print("Invalid input. Please enter a postive number.\n")
@@ -51,7 +57,7 @@ def get_valid_input(user_input,sequence):
         except: 
             print("Invalid input. Please input whole number.\n")
             return 'error'
-    elif sequence == 3:
+    elif sequence == "price":
          try:
              if float(user_input) <= 0:
                  print("Invalid input. Please enter a postive number.\n")
@@ -62,44 +68,6 @@ def get_valid_input(user_input,sequence):
              print("Invalid input. Please input a number.\n")
              return 'error'       
 
-def userPrompts():
-    global error
-    n=1
-    print("Add new order by filling up the prompts below with the appropirate inputs.\n")
-    while n < 4:
-        if n == 1:
-            nameInput = get_valid_input(input("Enter Product Name: "),n)
-            if nameInput == "cancel":
-                print("Nothing to go back to...Please input the name of your product or \"quit\" \n")
-            elif nameInput == "quit":
-                return nameInput
-            elif nameInput == "error":
-                error +=1
-            else: 
-                n += 1
-        elif n ==2:
-            quantityInput = get_valid_input(input("Enter Product Quantity: "),n)
-            if quantityInput == "cancel":
-                n -=1
-            elif quantityInput == "quit":
-                return quantityInput
-            elif quantityInput == "error":
-                error +=1
-            else: 
-                n += 1
-        else:
-            costInput = get_valid_input(input("Enter Product Cost(for 1 product): $"),n)
-            if costInput == "cancel":
-                n-=1
-            elif costInput == "quit":
-                return costInput
-            elif costInput == "error":
-                error +=1
-            else:
-                costInput = float("{:.2f}".format(costInput))
-                n += 1
-                break
-    return[nameInput,quantityInput,costInput]
 
 def process_delivery(current_total, new_value):
     return current_total + new_value
@@ -114,51 +82,35 @@ def generate_report(total_delivered,total_units,amount_processed, failed_attempt
     print(f"Total Money Processed: ${amount_processed:.2f}")
     print(f"Rejected Entries: {failed_attempts}")
 
-def menu():
-    print("----------- MENU -----------")
-    print("1. Display All Products\n2. Add Product\n3. Update Stock\n4. Search Product\n5. Save Inventory\n6. Exit")
-    print("----------------------------\n")
+def menu(inventory,numOfID):
     while True:
-        userinpt = input("Enter option: ")
-        try:
-            if int(userinpt)<1 or int(userinpt)>6:
-                print("\nPlease only input nmbers 1-6.\n")
-            else:
-                return int(input)
-        except:
-            print("\nPlease only input nmbers 1-6.\n")
-
-
-
-
-
-
-
-
-
+        userInput = get_valid_input(input("Enter option: "),"menu")
+        if userInput == 1:
+            display_all(inventory,numOfID)
+        elif userInput == 2:
+            add_product(numOfID+1)
+        elif userInput == 3:
+            update_stock()
+        elif userInput == 4:
+            search_product()
+        elif userInput == 5:
+            print("\nSaving inventory...")
+            save_inventory()
+            print("Inventory saved successfully to inventory.json\n")
+        elif userInput == 6:
+            exit_programme()
+        else:
+            print("\nError Detected...\nPlease try again.\nPlease only input nmbers 1-6.\n")
 
 def main():
     print("========================================\nINVENTORY MANAGEMENT SYSTEM\n========================================\n")
     inventory = load_inventory()
     numOfID = len(inventory)-1
-    while True:
-        userChoice = menu()
-        if userChoice == 1:
-            display_all(inventory,numOfID)
-        elif userChoice == 2:
-            add_product()
-        elif userChoice == 3:
-            update_stock()
-        elif userChoice == 4:
-            search_product()
-        elif userChoice == 5:
-            print("\nSaving inventory...")
-            save_inventory()
-            print("Inventory saved successfully to inventory.json\n")
-        elif userChoice == 6:
-            exit_programme()
-        else:
-            print("\nError Detected...\nPlease try again.\nPlease only input nmbers 1-6.\n")
+    print("----------- MENU -----------")
+    print("1. Display All Products\n2. Add Product\n3. Update Stock\n4. Search Product\n5. Save Inventory\n6. Exit")
+    print("----------------------------\n")
+    menu(inventory)
+
 
 def display_all(inventory,ID):
     print("\nCurrent Inventory\n------------------------------------------------")
@@ -171,45 +123,37 @@ def display_all(inventory,ID):
 def add_product(ID):
     global error
     n=1
-    print("Add New Product")
-    print("Product ID: ")
+    print("Add New Product\nInput \"back\" to go back to previous input\n")
+    print(f"Product ID: P00{ID}")
     while n < 4:
         if n == 1:
-            nameInput = get_valid_input(input("Enter Product Name: "),n)
-            if nameInput == "cancel":
-                print("Nothing to go back to...Please input the name of your product or \"quit\" \n")
-            elif nameInput == "quit":
+            nameInput = get_valid_input(input("Product Name: "),"str")
+            if nameInput == "back":
+                print("Returning to Menu...\n")
                 return nameInput
             elif nameInput == "error":
                 error +=1
             else: 
                 n += 1
         elif n ==2:
-            quantityInput = get_valid_input(input("Enter Product Quantity: "),n)
-            if quantityInput == "cancel":
-                n -=1
-            elif quantityInput == "quit":
-                return quantityInput
-            elif quantityInput == "error":
-                error +=1
-            else: 
-                n += 1
-        else:
-            costInput = get_valid_input(input("Enter Product Cost(for 1 product): $"),n)
-            if costInput == "cancel":
+            costInput = get_valid_input(input("Price: $"),"price")
+            if costInput == "back":
                 n-=1
-            elif costInput == "quit":
-                return costInput
             elif costInput == "error":
                 error +=1
             else:
                 costInput = float("{:.2f}".format(costInput))
                 n += 1
+        else:
+            quantityInput = get_valid_input(input("Stock Quantity: "),"int")
+            if quantityInput == "back":
+                n -=1
+            elif quantityInput == "error":
+                error +=1
+            else: 
+                n += 1
                 break
     return[nameInput,quantityInput,costInput]
-
-
-
 
 
 
