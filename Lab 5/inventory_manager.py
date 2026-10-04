@@ -88,9 +88,16 @@ def menu(inventory,numOfID):
         if userInput == 1:
             display_all(inventory,numOfID)
         elif userInput == 2:
-            add_product(numOfID+1)
+            newProduct = add_product(numOfID+1)
+            if isinstance(newProduct,str) and newProduct =="back":
+                continue
+            numOfID += 1
+            inventory[f"P"]
         elif userInput == 3:
-            update_stock()
+            newInventory = update_stock(numOfID)
+            if isinstance(newInventory,str) and newProduct =="back":
+                continue
+            inventory = newInventory      
         elif userInput == 4:
             search_product()
         elif userInput == 5:
@@ -108,23 +115,23 @@ def main():
     numOfID = len(inventory)-1
     print("----------- MENU -----------")
     print("1. Display All Products\n2. Add Product\n3. Update Stock\n4. Search Product\n5. Save Inventory\n6. Exit")
+    print("Input \"back\" to go back to previous input in sub menus")
     print("----------------------------\n")
-    menu(inventory)
+    menu(inventory,numOfID)
 
 
 def display_all(inventory,ID):
     print("\nCurrent Inventory\n------------------------------------------------")
     for i in range(ID):
-        current = inventory[f"P00{ID+1}"]
+        current = inventory[f"P{int(ID):0{3}d}"]
         print(f"ID: P00{ID+1} | Name: {current[0]} | Price: ${current[2]:.2f} | Stock: {current[1]}")
     print("------------------------------------------------\n")
-
 
 def add_product(ID):
     global error
     n=1
-    print("Add New Product\nInput \"back\" to go back to previous input\n")
-    print(f"Product ID: P00{ID}")
+    print("Add New Product")
+    print(f"Product ID: P{int(ID):0{3}d}")
     while n < 4:
         if n == 1:
             nameInput = get_valid_input(input("Product Name: "),"str")
@@ -154,6 +161,29 @@ def add_product(ID):
                 n += 1
                 break
     return[nameInput,quantityInput,costInput]
+
+def update_stock(inventory, numOfID):
+    print("\nUpdate Stock")
+    while True:
+        userInput = get_valid_input(input("Enter Product ID: "),"str")
+        if userInput == "back":
+            print("Returning to Menu...\n")
+            return userInput
+        else:
+            try:
+                product = inventory[f"P{int(userInput):0{3}d}"]
+                print("\nProduct Found:")
+                print(f"Name: {0}")
+                print(f"Current Stock: {1}\n")
+                newStock = get_valid_input(input("New Stock Quantity: "),"int")
+                if newStock == "back":
+                    continue
+                else:
+                    inventory[f"P{int(userInput):0{3}d}"][1] = newStock
+                    print("\nStock updated successfully!\n")
+                    return inventory
+            except:
+                print("\nProduct not found.\n")
 
 
 
