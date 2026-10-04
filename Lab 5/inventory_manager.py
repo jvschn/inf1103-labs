@@ -3,69 +3,36 @@ global error
 tax = 0.1
 error = 0
 
-#Name, Stock, Price
-inventory = {
-    "Total":0,
-    "P001": ["Laptop",15,1200],
-    "P002": ["Mouse",40,25.5],
-    "P003": ["Keyboard",25,45],
-}
+# #Name, Stock, Price
+# inventory = {
+#     "Total":0,
+#     "P001": ["Laptop",15,1200],
+#     "P002": ["Mouse",40,25.5],
+#     "P003": ["Keyboard",25,45],
+# }
 
 
 def save_inventory(inventory):
     with open('inventory.json', 'w', encoding='utf-8') as file:
         json.dump(inventory, file)
-    print("Orders succesfully saved to inventory.txt\n")
 
 def load_inventory():
     try:
         with open('output.json', 'r', encoding='utf-8') as file:
             data = json.load(file)
+        print("inventory.json found.")
+        print("Inventory loaded successfully.\n")
         return data
     except:
-        data = {'Total':0}
+        print("inventory.json not found.")
+        data = {'Information':{}}
         with open('inventory.json', 'w', encoding='utf-8') as file:
             json.dump(data, file)
+        print("inventory.json created.")
+        print("Created Inventory successfully.\n")
         return data
 
-def add_product():
-    global error
-    n=1
-    print("Add New Product")
-    while n < 4:
-        if n == 1:
-            nameInput = get_valid_input(input("Enter Product Name: "),n)
-            if nameInput == "cancel":
-                print("Nothing to go back to...Please input the name of your product or \"quit\" \n")
-            elif nameInput == "quit":
-                return nameInput
-            elif nameInput == "error":
-                error +=1
-            else: 
-                n += 1
-        elif n ==2:
-            quantityInput = get_valid_input(input("Enter Product Quantity: "),n)
-            if quantityInput == "cancel":
-                n -=1
-            elif quantityInput == "quit":
-                return quantityInput
-            elif quantityInput == "error":
-                error +=1
-            else: 
-                n += 1
-        else:
-            costInput = get_valid_input(input("Enter Product Cost(for 1 product): $"),n)
-            if costInput == "cancel":
-                n-=1
-            elif costInput == "quit":
-                return costInput
-            elif costInput == "error":
-                error +=1
-            else:
-                costInput = float("{:.2f}".format(costInput))
-                n += 1
-                break
-    return[nameInput,quantityInput,costInput]
+
 
 def get_valid_input(user_input,sequence):
     if user_input == "quit":
@@ -147,12 +114,124 @@ def generate_report(total_delivered,total_units,amount_processed, failed_attempt
     print(f"Total Money Processed: ${amount_processed:.2f}")
     print(f"Rejected Entries: {failed_attempts}")
 
-# save_inventory(inventory)
-inventory = load_inventory()
-deliveries = len(inventory)-1
-totalAmount = 0
-totalUnits = 0
+def menu():
+    print("----------- MENU -----------")
+    print("1. Display All Products\n2. Add Product\n3. Update Stock\n4. Search Product\n5. Save Inventory\n6. Exit")
+    print("----------------------------\n")
+    while True:
+        userinpt = input("Enter option: ")
+        try:
+            if int(userinpt)<1 or int(userinpt)>6:
+                print("\nPlease only input nmbers 1-6.\n")
+            else:
+                return int(input)
+        except:
+            print("\nPlease only input nmbers 1-6.\n")
+
+
+
+
+
+
+
+
+
+
 def main():
+    print("========================================\nINVENTORY MANAGEMENT SYSTEM\n========================================\n")
+    inventory = load_inventory()
+    numOfID = len(inventory)-1
+    while True:
+        userChoice = menu()
+        if userChoice == 1:
+            display_all(inventory,numOfID)
+        elif userChoice == 2:
+            add_product()
+        elif userChoice == 3:
+            update_stock()
+        elif userChoice == 4:
+            search_product()
+        elif userChoice == 5:
+            print("\nSaving inventory...")
+            save_inventory()
+            print("Inventory saved successfully to inventory.json\n")
+        elif userChoice == 6:
+            exit_programme()
+        else:
+            print("\nError Detected...\nPlease try again.\nPlease only input nmbers 1-6.\n")
+
+def display_all(inventory,ID):
+    print("\nCurrent Inventory\n------------------------------------------------")
+    for i in range(ID):
+        current = inventory[f"P00{ID+1}"]
+        print(f"ID: P00{ID+1} | Name: {current[0]} | Price: ${current[2]:.2f} | Stock: {current[1]}")
+    print("------------------------------------------------\n")
+
+
+def add_product(ID):
+    global error
+    n=1
+    print("Add New Product")
+    print("Product ID: ")
+    while n < 4:
+        if n == 1:
+            nameInput = get_valid_input(input("Enter Product Name: "),n)
+            if nameInput == "cancel":
+                print("Nothing to go back to...Please input the name of your product or \"quit\" \n")
+            elif nameInput == "quit":
+                return nameInput
+            elif nameInput == "error":
+                error +=1
+            else: 
+                n += 1
+        elif n ==2:
+            quantityInput = get_valid_input(input("Enter Product Quantity: "),n)
+            if quantityInput == "cancel":
+                n -=1
+            elif quantityInput == "quit":
+                return quantityInput
+            elif quantityInput == "error":
+                error +=1
+            else: 
+                n += 1
+        else:
+            costInput = get_valid_input(input("Enter Product Cost(for 1 product): $"),n)
+            if costInput == "cancel":
+                n-=1
+            elif costInput == "quit":
+                return costInput
+            elif costInput == "error":
+                error +=1
+            else:
+                costInput = float("{:.2f}".format(costInput))
+                n += 1
+                break
+    return[nameInput,quantityInput,costInput]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 print("Welcome to the updated Inventory Auditor Program!\n")
 if deliveries == 0:
     print("Currently you have no active orders.\n")
