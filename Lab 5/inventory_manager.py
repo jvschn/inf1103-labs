@@ -94,7 +94,7 @@ def menu(inventory,numOfID):
             numOfID += 1
             inventory[f"P"]
         elif userInput == 3:
-            newInventory = update_stock(numOfID)
+            newInventory = update_stock(inventory)
             if isinstance(newInventory,str) and newProduct =="back":
                 continue
             inventory = newInventory      
@@ -162,7 +162,7 @@ def add_product(ID):
                 break
     return[nameInput,quantityInput,costInput]
 
-def update_stock(inventory, numOfID):
+def update_stock(inventory):
     print("\nUpdate Stock")
     while True:
         userInput = get_valid_input(input("Enter Product ID: "),"str")
@@ -173,8 +173,8 @@ def update_stock(inventory, numOfID):
             try:
                 product = inventory[f"P{int(userInput):0{3}d}"]
                 print("\nProduct Found:")
-                print(f"Name: {0}")
-                print(f"Current Stock: {1}\n")
+                print(f"Name: {product[0]}")
+                print(f"Current Stock: {product[1]}\n")
                 newStock = get_valid_input(input("New Stock Quantity: "),"int")
                 if newStock == "back":
                     continue
@@ -185,7 +185,25 @@ def update_stock(inventory, numOfID):
             except:
                 print("\nProduct not found.\n")
 
-
+def search_product(inventory):
+    print("\nSearch Stock")
+    while True:
+        userInput = get_valid_input(input("Enter Product ID: "),"str")
+        if userInput == "back":
+            print("Returning to Menu...\n")
+            return userInput
+        else:
+            try:
+                product = inventory[f"P{int(userInput):0{3}d}"]
+                print("\nProduct Found:")
+                print("------------------------------------------------")
+                print(f"Name: {product[0]}")
+                print(f"Price: ${product[2]:.2f}")
+                print(f"Current Stock: {product[1]}\n")
+                print("------------------------------------------------\n")
+                return
+            except:
+                print("\nProduct not found.\n")
 
 
 
