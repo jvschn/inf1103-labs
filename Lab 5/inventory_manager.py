@@ -10,7 +10,8 @@ error = 0
 #     "P002": ["Mouse",40,25.5],
 #     "P003": ["Keyboard",25,45],
 # }
-
+# def calculate_tax(amount):
+#     return float("{:.2f}".format(amount*tax))
 
 def save_inventory(inventory):
     with open('inventory.json', 'w', encoding='utf-8') as file:
@@ -69,19 +70,6 @@ def get_valid_input(user_input,sequence):
              return 'error'       
 
 
-def process_delivery(current_total, new_value):
-    return current_total + new_value
-
-def calculate_tax(amount):
-    return float("{:.2f}".format(amount*tax))
-
-def generate_report(total_delivered,total_units,amount_processed, failed_attempts):
-    print("---------------------GENERATING PROCESS REPORT---------------------")
-    print(f"Total Orders Processed: {total_delivered}")
-    print(f"Total Units Processed: {total_units}")
-    print(f"Total Money Processed: ${amount_processed:.2f}")
-    print(f"Rejected Entries: {failed_attempts}")
-
 def menu(inventory,numOfID):
     while True:
         userInput = get_valid_input(input("Enter option: "),"menu")
@@ -99,13 +87,14 @@ def menu(inventory,numOfID):
                 continue
             inventory = newInventory      
         elif userInput == 4:
-            search_product()
+            search_product(inventory)
         elif userInput == 5:
             print("\nSaving inventory...")
-            save_inventory()
+            save_inventory(inventory)
             print("Inventory saved successfully to inventory.json\n")
         elif userInput == 6:
             exit_programme()
+            return
         else:
             print("\nError Detected...\nPlease try again.\nPlease only input nmbers 1-6.\n")
 
@@ -205,6 +194,20 @@ def search_product(inventory):
             except:
                 print("\nProduct not found.\n")
 
+def exit_programme(inventory):
+    print("\nSaving inventory before exit...")
+    save_inventory(inventory)
+    print("\nThank you for using Inventory Management System.\nProgram terminated.")
+    return
+
+
+
+def generate_report(total_delivered,total_units,amount_processed, failed_attempts):
+    print("---------------------GENERATING PROCESS REPORT---------------------")
+    print(f"Total Orders Processed: {total_delivered}")
+    print(f"Total Units Processed: {total_units}")
+    print(f"Total Money Processed: ${amount_processed:.2f}")
+    print(f"Rejected Entries: {failed_attempts}")
 
 
 
@@ -223,50 +226,3 @@ def search_product(inventory):
 
 
 
-
-print("Welcome to the updated Inventory Auditor Program!\n")
-if deliveries == 0:
-    print("Currently you have no active orders.\n")
-else:
-    print("Current Orders:\n")
-    for i in range(deliveries):
-        current = inventory[str(1000+i+1)]
-        print(f"{str(1000+i+1)}, {current[0]}, {current[1]}, ${current[2]:.2f}")
-        totalUnits += int(current[1])
-        totalAmount += float(current[2])
-    print("\n")
-print("To use this program, here are the lists of input commands:\n\"quit\" is used to quit the program at any time.\n\"cancel\" is used to go to the previous input.\nOther than the top 2, only valid positive numbers are allowed in the quantity and cost prompts.\n")
-
-while True:
-    if totalUnits == 500:
-        save_inventory(inventory)
-        print("Max number of units reached. Program will save and auto exit. Thank you!\n")
-        generate_report(deliveries,totalUnits,totalAmount,error)
-        break
-    newOrder = userPrompts()
-    if newOrder == "quit":
-        save_inventory(inventory)
-        generate_report(deliveries,totalUnits,totalAmount,error)
-        break
-    elif totalUnits + newOrder[1] > 500:
-        print(f"Warning: Inventory only has a max of 500 units, maximum units that can still be processed is: {500 - totalUnits}")
-        print(f"Do not input more than {500 - totalUnits} products.\n")
-        error += 1
-    else:
-        deliveries +=1
-        inventory[str(1000+deliveries)] = newOrder
-        totalCost = newOrder[2]*newOrder[1]
-        ordertax = calculate_tax(totalCost)
-        totalcostWithTax = float("{:.2f}".format(totalCost + ordertax))
-        totalAmount = process_delivery(totalAmount,totalcostWithTax)
-        inventory['Total'] = float("{:.2f}".format(totalAmount))
-        totalUnits += newOrder[1]
-        print("------------New Order------------\n")
-        print(f"Order Number: {str(1000+deliveries)}")
-        print(f"Product Name: {newOrder[0]}")
-        print(f"Number of Products: {newOrder[1]}")
-        print(f"Unit cost before tax: ${newOrder[2]:.2f} x {newOrder[1]} = ${totalCost:.2f}")
-        print(f"Delivery Tax(10%): ${ordertax:.2f}")
-        print(f"Total: ${totalcostWithTax:.2f}\n")
-        del inventory[str(1000+deliveries)][-1]
-        inventory[str(1000+deliveries)].append(totalcostWithTax)
