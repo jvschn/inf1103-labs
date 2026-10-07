@@ -1,5 +1,5 @@
 import json
-global error
+global error,tax
 tax = 0.1
 error = 0
 
@@ -10,8 +10,9 @@ error = 0
 #     "P002": ["Mouse",40,25.5],
 #     "P003": ["Keyboard",25,45],
 # }
-# def calculate_tax(amount):
-#     return float("{:.2f}".format(amount*tax))
+def calculate_tax(amount):
+    global tax
+    return float("{:.2f}".format(amount*tax))
 
 def save_inventory(inventory):
     with open('inventory.json', 'w', encoding='utf-8') as file:
@@ -19,7 +20,7 @@ def save_inventory(inventory):
 
 def load_inventory():
     try:
-        with open('output.json', 'r', encoding='utf-8') as file:
+        with open('inventory.json', 'r', encoding='utf-8') as file:
             data = json.load(file)
         print("inventory.json found.")
         print("Inventory loaded successfully.\n")
@@ -71,6 +72,7 @@ def get_valid_input(user_input,sequence):
 
 
 def menu(inventory,numOfID):
+    global error
     while True:
         userInput = get_valid_input(input("Enter option: "),"menu")
         if userInput == 1:
@@ -79,24 +81,30 @@ def menu(inventory,numOfID):
             newProduct = add_product(numOfID+1)
             if isinstance(newProduct,str) and newProduct =="back":
                 continue
-            numOfID += 1
-            inventory[f"P"]
+            else: 
+                numOfID += 1
+                inventory[f"P{int(numOfID):0{3}d}"] = newProduct
+            print("Product added successfully!\n")
         elif userInput == 3:
             newInventory = update_stock(inventory)
-            if isinstance(newInventory,str) and newProduct =="back":
+            if isinstance(newInventory,str) and newInventory =="back":
                 continue
-            inventory = newInventory      
+            else:
+                inventory[newInventory[0]][1] = newInventory[1]
         elif userInput == 4:
-            search_product(inventory)
+            search = search_product(inventory)
+            if isinstance(search,str) and search =="back":
+                continue
         elif userInput == 5:
             print("\nSaving inventory...")
             save_inventory(inventory)
             print("Inventory saved successfully to inventory.json\n")
         elif userInput == 6:
-            exit_programme()
+            exit_programme(inventory)
             return
         else:
             print("\nError Detected...\nPlease try again.\nPlease only input nmbers 1-6.\n")
+            error += 1
 
 def main():
     print("========================================\nINVENTORY MANAGEMENT SYSTEM\n========================================\n")
@@ -111,15 +119,18 @@ def main():
 
 def display_all(inventory,ID):
     print("\nCurrent Inventory\n------------------------------------------------")
-    for i in range(ID):
-        current = inventory[f"P{int(ID):0{3}d}"]
-        print(f"ID: P00{ID+1} | Name: {current[0]} | Price: ${current[2]:.2f} | Stock: {current[1]}")
+    if ID == 0:
+        print("No products found")
+    else:
+        for i in range(ID):
+            current = inventory[f"P{int(i+1):0{3}d}"]
+            print(f"ID: P00{i+1} | Name: {current[0]} | Price: ${current[2]:.2f} | Stock: {current[1]}")
     print("------------------------------------------------\n")
 
 def add_product(ID):
     global error
     n=1
-    print("Add New Product")
+    print("\nAdd New Product")
     print(f"Product ID: P{int(ID):0{3}d}")
     while n < 4:
         if n == 1:
@@ -152,27 +163,34 @@ def add_product(ID):
     return[nameInput,quantityInput,costInput]
 
 def update_stock(inventory):
+    global error
+    n=1
     print("\nUpdate Stock")
-    while True:
-        userInput = get_valid_input(input("Enter Product ID: "),"str")
-        if userInput == "back":
-            print("Returning to Menu...\n")
-            return userInput
-        else:
-            try:
-                product = inventory[f"P{int(userInput):0{3}d}"]
-                print("\nProduct Found:")
-                print(f"Name: {product[0]}")
-                print(f"Current Stock: {product[1]}\n")
-                newStock = get_valid_input(input("New Stock Quantity: "),"int")
-                if newStock == "back":
-                    continue
-                else:
-                    inventory[f"P{int(userInput):0{3}d}"][1] = newStock
-                    print("\nStock updated successfully!\n")
-                    return inventory
-            except:
-                print("\nProduct not found.\n")
+    while n<=2:
+        if n==1:
+            userInput = get_valid_input(input("Enter Product ID: "),"str")
+            if userInput == "back":
+                print("Returning to Menu...\n")
+                return userInput
+            else:
+                try:
+                    product = inventory[userInput]
+                    print("\nProduct Found:")
+                    print(f"Name: {product[0]}")
+                    print(f"Current Stock: {product[1]}\n")
+                    n+=1
+                except:
+                    print("\nProduct not found.\n")
+        elif n == 2:
+            newStock = get_valid_input(input("New Stock Quantity: "),"int")
+            if newStock == "back":
+                n -=1
+            elif newStock == "error":
+                error +=1
+            else:
+                print("\nStock updated successfully!\n")
+                n+=1
+                return [userInput,newStock]
 
 def search_product(inventory):
     print("\nSearch Stock")
@@ -183,12 +201,12 @@ def search_product(inventory):
             return userInput
         else:
             try:
-                product = inventory[f"P{int(userInput):0{3}d}"]
+                product = inventory[userInput]
                 print("\nProduct Found:")
                 print("------------------------------------------------")
                 print(f"Name: {product[0]}")
                 print(f"Price: ${product[2]:.2f}")
-                print(f"Current Stock: {product[1]}\n")
+                print(f"Current Stock: {product[1]}")
                 print("------------------------------------------------\n")
                 return
             except:
@@ -197,20 +215,33 @@ def search_product(inventory):
 def exit_programme(inventory):
     print("\nSaving inventory before exit...")
     save_inventory(inventory)
-    print("\nThank you for using Inventory Management System.\nProgram terminated.")
+    print("Inventory saved successfully.\n")
+    generate_report(inventory)
+    print("Thank you for using Inventory Management System.\nProgram terminated.")
     return
 
+def inventory_information(inventory):
+    products = len(inventory)-1
+    totalStock = 0
+    totalAmount = 0
+    for i in range(products):
+        current = inventory[f"P{int(i+1):0{3}d}"]
+        price = current[2]
+        totalStock += current[1]
+        totalAmount += current[1]*price
+    return [products,totalStock,totalAmount]  
 
-
-def generate_report(total_delivered,total_units,amount_processed, failed_attempts):
+def generate_report(inventory):
+    global error
+    information = inventory_information(inventory)
     print("---------------------GENERATING PROCESS REPORT---------------------")
-    print(f"Total Orders Processed: {total_delivered}")
-    print(f"Total Units Processed: {total_units}")
-    print(f"Total Money Processed: ${amount_processed:.2f}")
-    print(f"Rejected Entries: {failed_attempts}")
+    print(f"Total Unique Products: {information[0]}")
+    print(f"Total Stock Quantity: {information[1]}")
+    print(f"Total Inventory Amount: ${information[2]:.2f}")
+    print(f"Rejected Entries: {error}\n")
 
 
-
+main()
 
 
 
