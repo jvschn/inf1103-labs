@@ -40,7 +40,8 @@ class Inventory():
         print("------------------------------------------------\n")
     def get_inventory(self):
         return self.__inventory
-    def
+    def update_inventory_stock(self,id,quantity):
+        self.__inventory[id].update_stock(quantity)
 
 class FileSystem():
     def __init__(self):
@@ -178,6 +179,7 @@ def update_stock():
             if newStock != "error":
                 inventory.update_inventory_stock(id,newStock)
                 print("\nStock updated successfully!\n")
+                return
 
 print("========================================\nINVENTORY MANAGEMENT SYSTEM\n========================================\n")
 global inventory,file
