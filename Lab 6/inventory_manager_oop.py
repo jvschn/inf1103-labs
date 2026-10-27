@@ -38,8 +38,15 @@ class Inventory():
             for i in len(self.__inventory):
                 self.__inventory[i].display_information()
         print("------------------------------------------------\n")
-    def get_inventory(self):
-        return self.__inventory
+    def get_current_number_of_products(self):
+        return len(self.__inventory)
+    def print_product_ids(self):
+        if len(self.__inventory) == 0:
+            print("There is currently no products.\n")
+            return 'error'
+        for i in len(self.__inventory):
+            print(self.__inventory[i].get_id(),end="|")
+        print("\n")
     def update_inventory_stock(self,id,quantity):
         self.__inventory[id].update_stock(quantity)
 
@@ -97,22 +104,13 @@ def get_valid_input(user_input,sequence):
              print("Invalid input. Please input a number.\n")
              return 'error'
 
-def exit_programme(inventory):
+def exit_programme():
     print("\nSaving inventory before exit...")
-    save_inventory(inventory)
+    file.save_inventory(inventory)
     print("Inventory saved successfully.\n")
-    generate_report(inventory)
     print("Thank you for using Inventory Management System.\nProgram terminated.")
     return
 
-def generate_report(inventory):
-    global error
-    information = inventory_information(inventory)
-    print("---------------------GENERATING PROCESS REPORT---------------------")
-    print(f"Total Unique Products: {information[0]}")
-    print(f"Total Stock Quantity: {information[1]}")
-    print(f"Total Inventory Amount: ${information[2]:.2f}")
-    print(f"Rejected Entries: {error}\n")
 
 def menu():
     while True:
@@ -123,28 +121,21 @@ def menu():
             add_product()
             print("Product added successfully!\n")
         elif userInput == 3:
-            newInventory = update_stock(inventory)
-            if isinstance(newInventory,str) and newInventory =="back":
-                continue
-            else:
-                inventory[newInventory[0]][1] = newInventory[1]
+            update_stock()
         elif userInput == 4:
-            search = search_product(inventory)
-            if isinstance(search,str) and search =="back":
-                continue
+            search_product()
         elif userInput == 5:
             print("\nSaving inventory...")
-            save_inventory(inventory)
+            file.save_inventory(inventory)
             print("Inventory saved successfully to inventory.json\n")
         elif userInput == 6:
             exit_programme(inventory)
             return
         else:
             print("\nError Detected...\nPlease try again.\nPlease only input nmbers 1-6.\n")
-            error += 1
 
 def add_product():
-    newID = f"P{int(len(inventory.get_inventory())+1):0{3}d}"
+    newID = f"P{int(len(inventory.get_current_number_of_products())+1):0{3}d}"
     print("\nAdd New Product")
     print(f"Product ID: {newID}")
     while n < 4:
@@ -164,16 +155,24 @@ def add_product():
                 break
     inventory.add_product(Product(newID,nameInput,quantityInput,costInput))
     return
-
+def search_product():
+    if inventory.print_product_ids != 'error':
+        while True:
+            userInput = get_valid_input(input("Enter Product ID: "),"str")
+            id = inventory.search_product(userInput)
+            if id != 'error':
+                return id
+    else:
+        return 'no_products'
 def update_stock():
     n=1
     print("\nUpdate Stock")
     while n<=2:
         if n==1:
-            userInput = get_valid_input(input("Enter Product ID: "),"str")
-            id = inventory.search_product(userInput)
-            if id != 'error':
-                n +=1
+            id = search_product()
+            if id == 'no_products':
+                return
+            n +=1
         elif n == 2:
             newStock = get_valid_input(input("New Stock Quantity: "),"int")
             if newStock != "error":
