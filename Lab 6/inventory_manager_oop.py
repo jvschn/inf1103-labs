@@ -12,7 +12,8 @@ class Product():
     def from_dict(cls, d):
         return cls(d["id"], d["name"], d["price"], d["stock"])
     def update_stock(self, quantity):
-        self.__stock = quantity
+        if quantity >= 0:
+            self.__stock = quantity
     def display_information(self):
         print(f"ID: {self.__product_id} | Name: {self.__name} | Price: ${self.__price:.2f} | Stock: {self.__stock}")
     def display_information_nice(self):
@@ -34,7 +35,7 @@ class Inventory():
                 print("------------------------------------------------\n")
                 return i
         print("\nProduct not found.\n")
-        return 'error'
+        return 
     def display_all(self):
         print("\nCurrent Inventory\n------------------------------------------------")
         if len(self.__inventory) == 0:
@@ -47,7 +48,7 @@ class Inventory():
         return len(self.__inventory)
     def print_product_ids(self):
         if len(self.__inventory) == 0:
-            print("There is currently no products.\n")
+            print("There are currently no products.\n")
             return 'error'
         for i in range(len(self.__inventory)):
             print(self.__inventory[i].get_id(),end="|")
@@ -93,7 +94,7 @@ def get_valid_input(user_input,sequence):
     elif sequence == "int":
         try:
             if int(user_input) <= 0:
-                print("Invalid input. Please enter a postive number.\n")
+                print("Invalid input. Please enter a positive number.\n")
                 return 'error'
             else:
                 return int(user_input)
@@ -103,7 +104,7 @@ def get_valid_input(user_input,sequence):
     elif sequence == "price":
          try:
              if float(user_input) <= 0:
-                 print("Invalid input. Please enter a postive number.\n")
+                 print("Invalid input. Please enter a positive number.\n")
                  return 'error'
              else:
                  return float(user_input)
@@ -139,7 +140,7 @@ def menu():
             exit_programme()
             return
         else:
-            print("\nError Detected...\nPlease try again.\nPlease only input nmbers 1-6.\n")
+            continue
 
 def add_product():
     newID = f"P{int(inventory.get_current_number_of_products()+1):0{3}d}"
@@ -166,15 +167,17 @@ def add_product():
 def search_product():
     if inventory.print_product_ids() != 'error':
         while True:
-            userInput = get_valid_input(input("Enter Product ID: "),"str")
+            userInput = get_valid_input(input("Enter Product ID (Enter to cancel): ").strip().upper(),"str")
+            if userInput == "":
+                return 'back'
             id = inventory.search_product(userInput)
-            if id != 'error':
+            if id != None:
                 return id
     else:
-        return 'no_products'
+        return 'back'
 def update_stock():
     id = search_product()
-    if id == 'no_products':
+    if id == 'back':
         return
     print("Update Stock")
     while True:
@@ -185,7 +188,6 @@ def update_stock():
             return
 
 print("========================================\nINVENTORY MANAGEMENT SYSTEM\n========================================\n")
-global inventory,file
 file = FileSystem()
 inventory = Inventory(file.load_inventory())
 print("----------- MENU -----------")
