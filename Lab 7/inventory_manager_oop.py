@@ -100,12 +100,14 @@ def add_product():
         typeInput = get_valid_input(input("Type: "),"int")
         if typeInput == 1:
             weightInput = get_valid_input(input("Weight(kg): "),"float")
-            inventory.add_product(PhysicalProduct(newID,nameInput,costInput,quantityInput,weightInput))
-            break
+            if weightInput != "error":
+                inventory.add_product(PhysicalProduct(newID,nameInput,costInput,quantityInput,weightInput))
+                break
         elif typeInput == 2:
             download_sizeInput = get_valid_input(input("Download Size(mb): "),"float")
-            inventory.add_product(DigitalProduct(newID,nameInput,costInput,quantityInput,download_sizeInput))
-            break
+            if download_sizeInput != "error":
+                inventory.add_product(DigitalProduct(newID,nameInput,costInput,quantityInput,download_sizeInput))
+                break
         else:
             print("Please only input 1 or 2\n")
     return
