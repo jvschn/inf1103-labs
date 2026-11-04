@@ -5,12 +5,12 @@ from inventory import Inventory
 def get_valid_input(user_input,sequence):
     if sequence == "menu":
         try:
-            if int(user_input)<1 or int(user_input)>6:
-                print("\nPlease only input numbers 1-6.\n")
+            if int(user_input)<1 or int(user_input)>7:
+                print("\nPlease only input numbers 1-7.\n")
             else:
                 return int(user_input)
         except:
-            print("\nPlease only input numbers 1-6.\n")
+            print("\nPlease only input numbers 1-7.\n")
     elif sequence == "str":
         return user_input
     elif sequence == "int":
@@ -59,11 +59,22 @@ def menu():
             file.save_inventory(inventory.get_inventory())
             print("Inventory saved successfully to inventory.json\n")
         elif userInput == 6:
+            shipping_information()
+        elif userInput == 7:
             exit_programme()
             return
         else:
             continue
-
+def shipping_information():
+    if inventory.print_product_ids() != 'error':
+        while True:
+            userInput = get_valid_input(input("Enter Product ID (Enter to cancel): ").strip().upper(),"str")
+            if userInput == "":
+                return 'back'
+            inventory.shipping_information(userInput)
+            return
+    else:
+        return
 def add_product():
     newID = f"P{int(inventory.get_current_number_of_products()+1):0{3}d}"
     print("\nAdd New Product")
@@ -96,7 +107,7 @@ def add_product():
             inventory.add_product(DigitalProduct(newID,nameInput,costInput,quantityInput,download_sizeInput))
             break
         else:
-            print("Please only input 1 or 2")
+            print("Please only input 1 or 2\n")
     return
 def search_product():
     if inventory.print_product_ids() != 'error':
@@ -125,6 +136,6 @@ print("========================================\nINVENTORY MANAGEMENT SYSTEM\n==
 file = FileSystem()
 inventory = Inventory(file.load_inventory())
 print("----------- MENU -----------")
-print("1. Display All Products\n2. Add Product\n3. Update Stock\n4. Search Product\n5. Save Inventory\n6. Exit")
+print("1. Display All Products\n2. Add Product\n3. Update Stock\n4. Search Product\n5. Save Inventory\n6. Shipping information\n7. Exit")
 print("----------------------------\n")
 menu()
