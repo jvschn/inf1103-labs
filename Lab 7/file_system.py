@@ -1,5 +1,6 @@
 import json
-from product import PhysicalProduct,DigitalProduct
+from physical_product import PhysicalProduct
+from digital_product import DigitalProduct
 class FileSystem():
     def __init__(self):
         self.__filename = 'inventory.json'

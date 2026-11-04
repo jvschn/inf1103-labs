@@ -1,4 +1,5 @@
-from product import DigitalProduct,PhysicalProduct
+from physical_product import PhysicalProduct
+from digital_product import DigitalProduct
 from file_system import FileSystem
 from inventory import Inventory
 
