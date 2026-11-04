@@ -39,7 +39,7 @@ class PhysicalProduct(Product,CanBeShipped):
         super().display_information_nice()
         print(f"Weight: {self.__weight}kg")
     def get_fulfilment_info(self):
-        return f"This product is {self.__weight}kg and needs to be shipped."
+        return f"This product has to be shipped."
     def calculate_shipping_cost(self):
         return round(5.00 + 2.00 * self.__weight, 2)
     def to_dict(self):
@@ -63,7 +63,7 @@ class DigitalProduct(Product):
         super().display_information_nice()
         print(f"Download Size: {self.__download_size}mb")
     def get_fulfilment_info(self):
-        return f"This product is {self.__download_size}mb and needs to be downloaded."
+        return f"This product has to be downloaded."
     def to_dict(self):
         d =  super().to_dict()
         d["type"] = "digital"
