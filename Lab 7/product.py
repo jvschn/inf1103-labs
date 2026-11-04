@@ -1,4 +1,5 @@
-class Product():
+from abc import ABC, abstractmethod
+class Product(ABC):
     def __init__(self, id, name, price, stock):
         self.__product_id = id
         self.__name = name
@@ -18,6 +19,9 @@ class Product():
         print(f"ID: {self.__product_id}\nName: {self.__name}\nPrice: ${self.__price:.2f}\nStock: {self.__stock}")
     def get_id(self):
         return self.__product_id
+    @abstractmethod
+    def get_fulfilment_info(self):
+        return
 
 class PhysicalProduct(Product):
     def __init__(self, id, name, price, stock,weight):
@@ -29,6 +33,8 @@ class PhysicalProduct(Product):
     def display_information_nice(self):
         super().display_information_nice()
         print(f"Weight: {self.__weight}kg")
+    def get_fulfilment_info(self):
+        return f"This product is {self.__weight}kg and needs to be shipped."
 
 class DigitalProduct(Product):
     def __init__(self, id, name, price, stock,download_size):
@@ -40,3 +46,5 @@ class DigitalProduct(Product):
     def display_information_nice(self):
         super().display_information_nice()
         print(f"Download Size: {self.__download_size}mb")
+    def get_fulfilment_info(self):
+        return f"This product is {self.__download_size}mb and needs to be downloaded."
