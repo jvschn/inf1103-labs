@@ -12,9 +12,31 @@ class Product():
     def update_stock(self, quantity):
         if quantity >= 0:
             self.__stock = quantity
-    def display_information(self):
-        print(f"ID: {self.__product_id} | Name: {self.__name} | Price: ${self.__price:.2f} | Stock: {self.__stock}")
+    def display_information(self,end="\n"):
+        print(f"ID: {self.__product_id} | Name: {self.__name} | Price: ${self.__price:.2f} | Stock: {self.__stock}", end=end)
     def display_information_nice(self):
         print(f"ID: {self.__product_id}\nName: {self.__name}\nPrice: ${self.__price:.2f}\nStock: {self.__stock}")
     def get_id(self):
         return self.__product_id
+
+class PhysicalProduct(Product):
+    def __init__(self, id, name, price, stock,weight):
+        super().__init__(id, name, price, stock)
+        self.__weight = weight
+    def display_information(self):
+        super().display_information(end="")
+        print(f" | Weight: {self.__weight}kg")
+    def display_information_nice(self):
+        super().display_information_nice()
+        print(f"Weight: {self.__weight}kg")
+
+class DigitalProduct(Product):
+    def __init__(self, id, name, price, stock,download_size):
+        super().__init__(id, name, price, stock)
+        self.__download_size = download_size
+    def display_information(self):
+        super().display_information(end="")
+        print(f" | Download Size: {self.__download_size}mb")
+    def display_information_nice(self):
+        super().display_information_nice()
+        print(f"Download Size: {self.__download_size}mb")
