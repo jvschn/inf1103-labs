@@ -1,3 +1,4 @@
+from product import CanBeShipped
 class Inventory():
     def __init__(self,inventory):
         self.__inventory = inventory
@@ -13,6 +14,15 @@ class Inventory():
                 return i
         print("\nProduct not found.\n")
         return 
+    def shipping_information(self, searchid):
+        i = self.search_product(searchid)
+        if i is None:
+            return
+        product = self.__inventory[i]
+        print(product.get_fulfilment_info())
+        if isinstance(product, CanBeShipped):
+            print(f"Shipping cost based on weight($5 + $2/kg): ${product.calculate_shipping_cost():.2f}")
+        print("")
     def display_all(self):
         print("\nCurrent Inventory\n------------------------------------------------")
         if len(self.__inventory) == 0:
