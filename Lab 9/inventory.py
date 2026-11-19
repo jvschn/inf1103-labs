@@ -3,6 +3,8 @@ class Inventory():
     def __init__(self, products: list[Product] | None = None):
         self.__products: list[Product] = products if products is not None else []
     def add_product(self, product: Product) -> None:
+        if self.find_product(product.get_id()) is not None:
+            raise ValueError(f"A product with ID {product.get_id()} already exists.")
         self.__products.append(product)
     def remove_product(self, product_id: str) -> None:
         product = self.find_product(product_id)

@@ -19,9 +19,20 @@ class FileSystem():
             print("inventory.json created.")
             print("Created Inventory successfully.\n")
             return []
+        except json.JSONDecodeError:
+            print("inventory.json is not valid JSON. Starting with an empty inventory.\n")
+            return []
         print("inventory.json found.")
+        products: list[Product] = []
+        for d in data:
+            try:
+                products.append(self.create_product(d))
+            except KeyError as e:
+                print(f"Skipped a product with missing field {e} in inventory.json")
+            except ValueError as e:
+                print(f"Skipped an invalid product in inventory.json: {e}")
         print("Inventory loaded successfully.\n")
-        return [self.create_product(d) for d in data]
+        return products
     @staticmethod
     def create_product(d: dict) -> Product:
         return ProductFactory.create(d["type"], d["id"], d["name"], d["price"], d["stock"],
