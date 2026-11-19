@@ -5,6 +5,7 @@ from inventory import Inventory
 from supplier import Supplier
 from product import Product
 from order import Order
+from discount_strategy import DiscountStrategy, NoDiscount, PercentageDiscount, BulkDiscount, StudentDiscount
 
 MENU_OPTIONS = 9
 
@@ -195,7 +196,23 @@ def create_order() -> None:
     if order.get_number_of_lines() == 0:
         print("\nNo items added. Order cancelled.\n")
         return
+    order.set_discount(choose_discount())
     order.display_information()
+def choose_discount() -> DiscountStrategy:
+    discounts: dict[str, DiscountStrategy] = {
+        "1": NoDiscount(),
+        "2": PercentageDiscount(10),
+        "3": BulkDiscount(200, 20),
+        "4": StudentDiscount(),
+    }
+    print("\nChoose a discount:")
+    for key, discount in discounts.items():
+        print(f"{key}: {discount.get_description()}")
+    while True:
+        choice = input("Discount: ").strip()
+        if choice in discounts:
+            return discounts[choice]
+        print(f"Please only input 1-{len(discounts)}\n")
 
 print("========================================\nINVENTORY MANAGEMENT SYSTEM\n========================================\n")
 file = FileSystem()
