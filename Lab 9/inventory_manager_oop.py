@@ -1,49 +1,31 @@
-from physical_product import PhysicalProduct
-from digital_product import DigitalProduct
+from product_factory import ProductFactory
 from file_system import FileSystem
 from inventory import Inventory
 from supplier import Supplier
 from product import Product
 from order import Order
 from discount_strategy import DiscountStrategy, NoDiscount, PercentageDiscount, BulkDiscount, StudentDiscount
+from input_helpers import get_positive_float, get_positive_int, get_non_negative_int
+from product_loader import load_products
 
-MENU_OPTIONS = 9
+MENU_OPTIONS = 10
 
-def get_valid_input(user_input: str, sequence: str) -> int | float | str | None:
+def get_valid_input(user_input: str, sequence: str) -> int | str | None:
     if sequence == "menu":
         try:
             if int(user_input)<1 or int(user_input)>MENU_OPTIONS:
                 print(f"\nPlease only input numbers 1-{MENU_OPTIONS}.\n")
             else:
                 return int(user_input)
-        except:
+        except ValueError:
             print(f"\nPlease only input numbers 1-{MENU_OPTIONS}.\n")
     elif sequence == "str":
         return user_input
-    elif sequence == "int":
-        try:
-            if int(user_input) <= 0:
-                print("Invalid input. Please enter a positive number.\n")
-                return 'error'
-            else:
-                return int(user_input)
-        except:
-            print("Invalid input. Please input whole number.\n")
-            return 'error'
-    elif sequence == "float":
-         try:
-             if float(user_input) <= 0:
-                 print("Invalid input. Please enter a positive number.\n")
-                 return 'error'
-             else:
-                 return float(user_input)
-         except:
-             print("Invalid input. Please input a number.\n")
-             return 'error'
+    return None
 
 def print_menu() -> None:
     print("----------- MENU -----------")
-    print("1. Display All Products\n2. Add Product\n3. Update Stock\n4. Search Product\n5. Save Inventory\n6. Shipping information\n7. Remove Product\n8. Create Order\n9. Exit")
+    print("1. Display All Products\n2. Add Product\n3. Update Stock\n4. Search Product\n5. Save Inventory\n6. Shipping information\n7. Remove Product\n8. Create Order\n9. Load Products from CSV\n10. Exit")
     print("----------------------------\n")
 
 def exit_programme() -> None:
@@ -61,7 +43,6 @@ def menu() -> None:
             inventory.display_all()
         elif userInput == 2:
             add_product()
-            print("Product added successfully!\n")
         elif userInput == 3:
             update_stock()
         elif userInput == 4:
@@ -77,6 +58,8 @@ def menu() -> None:
         elif userInput == 8:
             create_order()
         elif userInput == 9:
+            load_products_from_csv()
+        elif userInput == 10:
             exit_programme()
             return
         else:
@@ -109,39 +92,34 @@ def add_product() -> None:
     newID = inventory.generate_next_id()
     print("\nAdd New Product")
     print(f"Product ID: {newID}")
-    n = 1
-    while n < 4:
-        if n == 1:
-            nameInput = get_valid_input(input("Product Name: "),"str")
-            if nameInput != "error":
-                n += 1
-        elif n ==2:
-            costInput = get_valid_input(input("Price: $"),"float")
-            if costInput != "error":
-                costInput = float("{:.2f}".format(costInput))
-                n += 1
-        else:
-            quantityInput = get_valid_input(input("Stock Quantity: "),"int")
-            if quantityInput != "error":
-                n += 1
-                break
+    while True:
+        nameInput = input("Product Name: ").strip()
+        if nameInput != "":
+            break
+        print("Product Name cannot be empty.\n")
+    costInput = round(get_positive_float("Price: $"), 2)
+    quantityInput = get_non_negative_int("Stock Quantity: ")
     supplier = get_supplier()
     while True:
         print("Choose a product type:\n1: Physical\n2: Digital")
-        typeInput = get_valid_input(input("Type: "),"int")
-        if typeInput == 1:
-            weightInput = get_valid_input(input("Weight(kg): "),"float")
-            if weightInput != "error":
-                inventory.add_product(PhysicalProduct(newID,nameInput,costInput,quantityInput,weightInput,supplier))
-                break
-        elif typeInput == 2:
-            download_sizeInput = get_valid_input(input("Download Size(mb): "),"float")
-            if download_sizeInput != "error":
-                inventory.add_product(DigitalProduct(newID,nameInput,costInput,quantityInput,download_sizeInput,supplier))
-                break
+        typeInput = input("Type: ").strip()
+        if typeInput == "1":
+            weightInput = get_positive_float("Weight(kg): ")
+            productType, weight, downloadSize = "physical", weightInput, 0.0
+            break
+        elif typeInput == "2":
+            downloadSize = get_positive_float("Download Size(mb): ")
+            productType, weight = "digital", 0.0
+            break
         else:
             print("Please only input 1 or 2\n")
-    return
+    try:
+        product = ProductFactory.create(productType,newID,nameInput,costInput,quantityInput,supplier,weight=weight,download_size=downloadSize)
+        inventory.add_product(product)
+    except ValueError as e:
+        print(f"\nProduct could not be added: {e}\n")
+        return
+    print("Product added successfully!\n")
 def search_product() -> Product | None:
     if inventory.print_product_ids():
         while True:
@@ -157,12 +135,9 @@ def update_stock() -> None:
     if product is None:
         return
     print("Update Stock")
-    while True:
-        newStock = get_valid_input(input("New Stock Quantity: "),"int")
-        if newStock != "error":
-            inventory.update_inventory_stock(product.get_id(),newStock)
-            print("\nStock updated successfully!\n")
-            return
+    newStock = get_non_negative_int("New Stock Quantity: ")
+    inventory.update_inventory_stock(product.get_id(),newStock)
+    print("\nStock updated successfully!\n")
 def remove_product() -> None:
     product = search_product()
     if product is None:
@@ -188,9 +163,7 @@ def create_order() -> None:
         if product is None:
             print("Product not found.\n")
             continue
-        quantity = get_valid_input(input("Quantity: "),"int")
-        if quantity == "error":
-            continue
+        quantity = get_positive_int("Quantity: ")
         order.add_order_line(product,quantity)
         print(f"Added {quantity} x {product.get_name()} to the order.\n")
     if order.get_number_of_lines() == 0:
@@ -213,6 +186,14 @@ def choose_discount() -> DiscountStrategy:
         if choice in discounts:
             return discounts[choice]
         print(f"Please only input 1-{len(discounts)}\n")
+def load_products_from_csv() -> None:
+    path = input("CSV file name (Enter for products.csv): ").strip()
+    if path == "":
+        path = "products.csv"
+    supplier = get_supplier()
+    print()
+    load_products(path, inventory, supplier)
+    print()
 
 print("========================================\nINVENTORY MANAGEMENT SYSTEM\n========================================\n")
 file = FileSystem()
