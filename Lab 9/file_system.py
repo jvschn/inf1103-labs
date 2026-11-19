@@ -1,7 +1,7 @@
 import json
 from product import Product
-from physical_product import PhysicalProduct
-from digital_product import DigitalProduct
+from product_factory import ProductFactory
+from supplier import Supplier
 class FileSystem():
     def __init__(self):
         self.__filename: str = 'inventory.json'
@@ -24,5 +24,6 @@ class FileSystem():
         return [self.create_product(d) for d in data]
     @staticmethod
     def create_product(d: dict) -> Product:
-        PRODUCT_TYPES = {"physical": PhysicalProduct, "digital": DigitalProduct}
-        return PRODUCT_TYPES[d["type"]].from_dict(d)
+        return ProductFactory.create(d["type"], d["id"], d["name"], d["price"], d["stock"],
+                                     Supplier.from_dict(d["supplier"]),
+                                     weight=d.get("weight", 0.0), download_size=d.get("download_size", 0.0))

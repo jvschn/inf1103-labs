@@ -9,10 +9,6 @@ class Product(ABC):
         self.__supplier: Supplier = supplier
     def to_dict(self) -> dict:
         return {"id": self.__product_id, "name": self.__name, "price": self.__price, "stock": self.__stock, "supplier": self.__supplier.to_dict()}
-    @classmethod
-    @abstractmethod
-    def from_dict(cls, d: dict) -> "Product":
-        pass
     def update_stock(self, quantity: int) -> None:
         if quantity >= 0:
             self.__stock = quantity
