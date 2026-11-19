@@ -2,6 +2,10 @@ from abc import ABC, abstractmethod
 from supplier import Supplier
 class Product(ABC):
     def __init__(self, id: str, name: str, price: float, stock: int, supplier: Supplier):
+        if price <= 0:
+            raise ValueError("Price must be greater than zero.")
+        if stock < 0:
+            raise ValueError("Stock quantity cannot be negative.")
         self.__product_id: str = id
         self.__name: str = name
         self.__price: float = price
@@ -10,8 +14,9 @@ class Product(ABC):
     def to_dict(self) -> dict:
         return {"id": self.__product_id, "name": self.__name, "price": self.__price, "stock": self.__stock, "supplier": self.__supplier.to_dict()}
     def update_stock(self, quantity: int) -> None:
-        if quantity >= 0:
-            self.__stock = quantity
+        if quantity < 0:
+            raise ValueError("Stock quantity cannot be negative.")
+        self.__stock = quantity
     def display_information(self, end: str = "\n") -> None:
         print(f"ID: {self.__product_id} | Name: {self.__name} | Price: ${self.__price:.2f} | Stock: {self.__stock} | Supplier: {self.__supplier.get_name()}", end=end)
     def display_information_nice(self) -> None:
