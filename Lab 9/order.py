@@ -1,9 +1,16 @@
 from product import Product
 from order_line import OrderLine
+from discount_strategy import DiscountStrategy, NoDiscount
 class Order():
-    def __init__(self, order_id: str):
+    def __init__(self, order_id: str, discount: DiscountStrategy | None = None):
         self.__order_id: str = order_id
         self.__order_lines: list[OrderLine] = []
+        # Association: the Order uses a DiscountStrategy but does not own it
+        self.__discount: DiscountStrategy = discount if discount is not None else NoDiscount()
+    def set_discount(self, discount: DiscountStrategy) -> None:
+        self.__discount = discount
+    def get_discount(self) -> DiscountStrategy:
+        return self.__discount
     def get_order_id(self) -> str:
         return self.__order_id
     def add_order_line(self, product: Product, quantity: int) -> None:
@@ -20,11 +27,11 @@ class Order():
         return list(self.__order_lines)
     def get_number_of_lines(self) -> int:
         return len(self.__order_lines)
+    def calculate_subtotal(self) -> float:
+        return sum((order_line.calculate_subtotal() for order_line in self.__order_lines), 0.0)
     def calculate_total(self) -> float:
-        total = 0.0
-        for order_line in self.__order_lines:
-            total += order_line.calculate_subtotal()
-        return total
+        total = self.calculate_subtotal()
+        return self.__discount.apply(total)
     def display_information(self) -> None:
         print(f"\nOrder ID: {self.__order_id}")
         print("------------------------------------------------")
@@ -33,4 +40,6 @@ class Order():
         for order_line in self.__order_lines:
             order_line.display_information()
         print("------------------------------------------------")
+        print(f"Subtotal: ${self.calculate_subtotal():.2f}")
+        print(f"Discount: {self.__discount.get_description()}")
         print(f"Total: ${self.calculate_total():.2f}\n")
